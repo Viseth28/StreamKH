@@ -678,13 +678,52 @@ class StreamKHApp {
     const genreSelect = document.getElementById('filter-genre');
     genreSelect.innerHTML = `<option value="">${this.selectedLanguage === 'km' ? 'គ្រប់ប្រភេទ (All Genres)' : 'All Genres'}</option>`;
     
+    // Genre translations map for Khmer language fallback (since TMDB returns empty arrays for km-KH genres)
+    const genreTranslations = {
+      'Action': 'វាយប្រហារ / សកម្មភាព',
+      'Adventure': 'ផ្សងព្រេង',
+      'Animation': 'គំនូរជីវចល',
+      'Comedy': 'កំប្លែង',
+      'Crime': 'ឧក្រិដ្ឋកម្ម',
+      'Documentary': 'ឯកសារ',
+      'Drama': 'មនោសញ្ចេតនា',
+      'Family': 'គ្រួសារ',
+      'Fantasy': 'មន្តអាគម / ស្រមើស្រមៃ',
+      'History': 'ប្រវត្តិសាស្ត្រ',
+      'Horror': 'ភ័យរន្ធត់',
+      'Music': 'តន្ត្រី',
+      'Mystery': 'អាថ៌កំបាំង',
+      'Romance': 'ស្នេហា',
+      'Science Fiction': 'វិទ្យាសាស្ត្រ',
+      'TV Movie': 'ភាពយន្តទូរទស្សន៍',
+      'Thriller': 'រន្ធត់ញាប់ញ័រ',
+      'War': 'សង្គ្រាម',
+      'Western': 'បស្ចិមប្រទេស',
+      'Action & Adventure': 'សកម្មភាព និង ផ្សងព្រេង',
+      'Kids': 'កុមារ',
+      'News': 'ព័ត៌មាន',
+      'Reality': 'កម្មវិធីពិត',
+      'Sci-Fi & Fantasy': 'វិទ្យាសាស្ត្រ និង មន្តអាគម',
+      'Soap': 'រឿងភាគ',
+      'Talk': 'ជជែកកម្សាន្ត',
+      'War & Politics': 'សង្គ្រាម និង នយោបាយ'
+    };
+
     try {
-      const data = await this.fetchFromTMDB(`/genre/${mediaType}/list`);
+      // Force fetching in English so we always get the full list of genres
+      const data = await this.fetchFromTMDB(`/genre/${mediaType}/list`, { language: 'en-US' });
       const genres = data.genres || [];
       genres.forEach(g => {
         const opt = document.createElement('option');
         opt.value = g.id;
-        opt.textContent = g.name;
+        
+        // Translate name if UI is set to Khmer
+        if (this.selectedLanguage === 'km' && genreTranslations[g.name]) {
+          opt.textContent = genreTranslations[g.name];
+        } else {
+          opt.textContent = g.name;
+        }
+        
         genreSelect.appendChild(opt);
       });
     } catch(e) {
