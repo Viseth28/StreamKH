@@ -109,6 +109,17 @@
           </div>
         </section>
 
+        <!-- Continue Watching Shelf (Hidden by default, shown dynamically via JS) -->
+        <section class="shelf-container" id="continue-watching-shelf" style="display: none;">
+          <h2 class="shelf-title">
+            <span data-translate="shelf_continue_watching">ទស្សនាបន្ត</span>
+            <span class="shelf-title-link" onclick="app.clearHistory()" data-translate="btn_clear_history" style="font-size: 12px; color: var(--text-muted); cursor: pointer;">លុបប្រវត្តិ</span>
+          </h2>
+          <div class="shelf-grid" id="continue-watching-grid">
+            <!-- Populated dynamically -->
+          </div>
+        </section>
+
         <!-- Shelves Categories -->
         <section class="shelf-container" id="trending-movies-shelf">
           <h2 class="shelf-title">
@@ -184,10 +195,15 @@
           </button>
         </div>
         
-        <div class="details-action-bar">
-          <button class="btn btn-primary" id="details-play-btn" style="width: 100%; justify-content: center;">
+        <div class="details-action-bar" style="display: flex; gap: 12px; margin-bottom: 24px;">
+          <button class="btn btn-primary" id="details-play-btn" style="flex: 2; justify-content: center;">
             <i data-lucide="play" style="fill: #000; width:18px; height:18px;"></i>
-            <span data-translate="btn_watch">ទស្សនាឥឡូវនេះ</span>
+            <span id="details-play-text">ទស្សនាឥឡូវនេះ</span>
+          </button>
+          
+          <button class="btn btn-secondary" id="details-start-over-btn" style="flex: 1; display: none; justify-content: center;" title="ទស្សនាពីដំបូង / Start Over">
+            <i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>
+            <span data-translate="btn_start_over">ទស្សនាឡើងវិញ</span>
           </button>
         </div>
 

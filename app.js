@@ -29,7 +29,12 @@ const TRANSLATIONS = {
     bookmark_remove: 'បានកក់ទុក',
     no_bookmarks: 'មិនទាន់មានការកក់ទុកភាពយន្តនៅឡើយទេ។',
     no_results: 'រកមិនឃើញលទ្ធផលដែលត្រូវគ្នានឹងការស្វែងរករបស់អ្នកទេ។',
-    btn_auto_switch: 'ប្តូរម៉ាស៊ីនមេ'
+    btn_auto_switch: 'ប្តូរម៉ាស៊ីនមេ',
+    shelf_continue_watching: 'ទស្សនាបន្ត',
+    btn_clear_history: 'លុបប្រវត្តិ',
+    btn_resume: 'ទស្សនាបន្ត',
+    btn_start_over: 'ទស្សនាឡើងវិញ',
+    resume_message: 'បន្តទស្សនាភាគចុងក្រោយ?'
   },
   en: {
     nav_home: 'Home',
@@ -59,7 +64,12 @@ const TRANSLATIONS = {
     bookmark_remove: 'Bookmarked',
     no_bookmarks: 'No movies bookmarked yet.',
     no_results: 'No results found matching your query.',
-    btn_auto_switch: 'Auto-Switch'
+    btn_auto_switch: 'Auto-Switch',
+    shelf_continue_watching: 'Continue Watching',
+    btn_clear_history: 'Clear History',
+    btn_resume: 'Resume Playback',
+    btn_start_over: 'Start Over',
+    resume_message: 'Resume from where you left off?'
   }
 };
 
@@ -76,6 +86,7 @@ class StreamKHApp {
     this.selectedServerIndex = parseInt(localStorage.getItem('streamkh_default_server') || CONFIG.DEFAULT_PROVIDER_INDEX);
     
     this.bookmarks = JSON.parse(localStorage.getItem('streamkh_bookmarks')) || [];
+    this.history = JSON.parse(localStorage.getItem('streamkh_history')) || [];
     this.searchTimeout = null;
   }
 
@@ -157,6 +168,20 @@ class StreamKHApp {
           this.activeMediaType, 
           this.selectedSeason, 
           this.selectedEpisode
+        );
+      }
+    });
+
+    // Details Drawer start over button handler
+    document.getElementById('details-start-over-btn').addEventListener('click', () => {
+      if (this.activeMedia) {
+        this.selectedSeason = 1;
+        this.selectedEpisode = 1;
+        this.playMedia(
+          this.activeMedia.id, 
+          this.activeMediaType, 
+          1, 
+          1
         );
       }
     });
@@ -326,11 +351,32 @@ class StreamKHApp {
   }
 
   // Open Details Drawer
-  async openDetails(id, mediaType) {
+  async openDetails(id, mediaType, autoResume = false) {
     this.activeMediaId = id;
     this.activeMediaType = mediaType;
-    this.selectedSeason = 1;
-    this.selectedEpisode = 1;
+    
+    // Check local play history
+    const historyEntry = this.history.find(h => h.id === id && h.media_type === mediaType);
+    if (historyEntry) {
+      this.selectedSeason = historyEntry.season || 1;
+      this.selectedEpisode = historyEntry.episode || 1;
+    } else {
+      this.selectedSeason = 1;
+      this.selectedEpisode = 1;
+    }
+
+    // Auto resume if clicked from Continue Watching shelf
+    if (autoResume) {
+      // Fetch details first to ensure activeMedia state is loaded
+      try {
+        const details = await this.fetchFromTMDB(`/${mediaType}/${id}`);
+        this.activeMedia = details;
+        this.playMedia(id, mediaType, this.selectedSeason, this.selectedEpisode);
+      } catch(e) {
+        console.error(e);
+      }
+      return;
+    }
 
     // Open drawer structure first to show transition
     document.getElementById('details-drawer').classList.add('open');
@@ -350,6 +396,25 @@ class StreamKHApp {
 
       // Update bookmark state button
       this.updateBookmarkButtonState();
+
+      // Update Resume / Start Over buttons based on history
+      const playText = document.getElementById('details-play-text');
+      const startOverBtn = document.getElementById('details-start-over-btn');
+      
+      if (historyEntry) {
+        startOverBtn.style.display = 'inline-flex';
+        
+        if (mediaType === 'tv') {
+          playText.textContent = this.selectedLanguage === 'km'
+            ? `បន្តទស្សនា ភាគ ${this.selectedEpisode}`
+            : `Resume Ep ${this.selectedEpisode}`;
+        } else {
+          playText.textContent = TRANSLATIONS[this.selectedLanguage].btn_resume;
+        }
+      } else {
+        startOverBtn.style.display = 'none';
+        playText.textContent = TRANSLATIONS[this.selectedLanguage].btn_watch;
+      }
 
       // Render main details text
       const backdropUrl = details.backdrop_path ? `${CONFIG.TMDB_IMAGE_BASE_URL}/w780${details.backdrop_path}` : '';
@@ -488,6 +553,9 @@ class StreamKHApp {
     this.activeMediaType = mediaType;
     this.selectedSeason = season;
     this.selectedEpisode = episode;
+
+    // Save to playback history
+    this.addToHistory(id, mediaType, season, episode);
 
     const overlay = document.getElementById('player-overlay');
     overlay.classList.add('open');
@@ -839,7 +907,121 @@ class StreamKHApp {
     this.showSection('dashboard-view');
     document.getElementById('search-input').value = '';
     this.setActiveNavLink('nav-home');
+    this.renderContinueWatching();
     this.loadDashboardData();
+  }
+
+  // Render the "Continue Watching" shelf on the home dashboard
+  renderContinueWatching() {
+    const shelf = document.getElementById('continue-watching-shelf');
+    const grid = document.getElementById('continue-watching-grid');
+    
+    if (!shelf || !grid) return;
+    
+    if (this.history.length === 0) {
+      shelf.style.display = 'none';
+      return;
+    }
+
+    shelf.style.display = 'block';
+    grid.innerHTML = '';
+
+    this.history.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'movie-card';
+      
+      const posterPath = item.poster_path ? `${CONFIG.TMDB_IMAGE_BASE_URL}/w342${item.poster_path}` : 'https://placehold.co/342x513/121214/fafafa?text=No+Poster';
+      const title = item.title;
+      const subtitle = item.media_type === 'tv'
+        ? (this.selectedLanguage === 'km' ? `រដូវកាល ${item.season} ភាគ ${item.episode}` : `S${item.season} E${item.episode}`)
+        : (this.selectedLanguage === 'km' ? 'ភាពយន្ត' : 'Movie');
+        
+      card.innerHTML = `
+        <div class="movie-card-poster">
+          <img class="movie-card-img" src="${posterPath}" alt="${title}" loading="lazy">
+          <div class="movie-card-overlay">
+            <i data-lucide="play" style="fill: var(--accent-color); stroke: var(--accent-color); width: 28px; height: 28px;"></i>
+          </div>
+        </div>
+        <div class="movie-card-info-bottom">
+          <div class="movie-card-title-bottom" title="${title}">${title}</div>
+          <div class="movie-card-meta-bottom">
+            <span style="color: var(--accent-color); font-weight: 700; font-size: 10px;">${subtitle}</span>
+            <span style="font-size: 10px; opacity: 0.6;">${this.formatTimeAgo(item.timestamp)}</span>
+          </div>
+        </div>
+      `;
+      
+      card.addEventListener('click', () => {
+        // True tells openDetails to autoResume play immediately!
+        this.openDetails(item.id, item.media_type, true);
+      });
+      
+      grid.appendChild(card);
+    });
+    
+    // Refresh icons
+    lucide.createIcons();
+  }
+
+  // Format history timestamp to time ago
+  formatTimeAgo(timestamp) {
+    const diffMs = Date.now() - timestamp;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMin / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (this.selectedLanguage === 'km') {
+      if (diffMin < 1) return 'មុននេះបន្តិច';
+      if (diffMin < 60) return `${diffMin} នាទីមុន`;
+      if (diffHours < 24) return `${diffHours} ម៉ោងមុន`;
+      return `${diffDays} ថ្ងៃមុន`;
+    } else {
+      if (diffMin < 1) return 'Just now';
+      if (diffMin < 60) return `${diffMin}m ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      return `${diffDays}d ago`;
+    }
+  }
+
+  // Add played media item to local storage history
+  addToHistory(id, mediaType, season = 1, episode = 1) {
+    if (!this.activeMedia) return;
+    
+    // Remove if duplicate exists
+    const index = this.history.findIndex(h => h.id === id && h.media_type === mediaType);
+    if (index > -1) {
+      this.history.splice(index, 1);
+    }
+    
+    const historyItem = {
+      id: id,
+      title: this.activeMedia.title || this.activeMedia.name,
+      poster_path: this.activeMedia.poster_path,
+      media_type: mediaType,
+      timestamp: Date.now(),
+      season: season,
+      episode: episode
+    };
+    
+    this.history.unshift(historyItem);
+    if (this.history.length > 10) {
+      this.history.pop();
+    }
+    
+    localStorage.setItem('streamkh_history', JSON.stringify(this.history));
+  }
+
+  // Clear all movie history items
+  clearHistory() {
+    const question = this.selectedLanguage === 'km' 
+      ? 'តើអ្នកចង់លុបប្រវត្តិទស្សនាទាំងអស់មែនទេ?' 
+      : 'Are you sure you want to clear your playback history?';
+    if (confirm(question)) {
+      this.history = [];
+      localStorage.removeItem('streamkh_history');
+      this.renderContinueWatching();
+    }
   }
 
   showSection(sectionId) {
