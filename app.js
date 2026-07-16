@@ -660,17 +660,80 @@ class StreamKHApp {
       : (this.selectedLanguage === 'km' ? 'រឿងភាគទាំងអស់' : 'All TV Shows');
       
     document.getElementById('search-results-section').querySelector('.search-results-title').innerHTML = `<span>${titleText}</span>`;
-    document.getElementById('search-results-grid').innerHTML = '<div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>';
-
-    try {
-      const data = await this.fetchFromTMDB(`/discover/${type}`, { sort_by: 'popularity.desc' });
-      this.renderShelf('search-results-grid', data.results || [], type);
-    } catch(e) {
-      console.error(e);
-      document.getElementById('search-results-grid').innerHTML = '<div style="color: red; padding: 20px 0;">Error loading page.</div>';
-    }
+    
+    // Reset sort selector to default popularity
+    document.getElementById('filter-sort').value = 'popularity.desc';
+    
+    // Load and populate dropdowns (genres & country/languages)
+    await this.loadFilterDropdowns(type);
+    
+    // Run initial discover query
+    await this.applyFilters();
 
     this.setActiveNavLink(type === 'movie' ? 'nav-movies' : 'nav-tv');
+  }
+
+  // Load genres and country list based on active media category
+  async loadFilterDropdowns(mediaType) {
+    const genreSelect = document.getElementById('filter-genre');
+    genreSelect.innerHTML = `<option value="">${this.selectedLanguage === 'km' ? 'គ្រប់ប្រភេទ (All Genres)' : 'All Genres'}</option>`;
+    
+    try {
+      const data = await this.fetchFromTMDB(`/genre/${mediaType}/list`);
+      const genres = data.genres || [];
+      genres.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g.id;
+        opt.textContent = g.name;
+        genreSelect.appendChild(opt);
+      });
+    } catch(e) {
+      console.error('Error loading genres:', e);
+    }
+    
+    const countrySelect = document.getElementById('filter-country');
+    countrySelect.innerHTML = `
+      <option value="">${this.selectedLanguage === 'km' ? 'គ្រប់ប្រទេស (All Countries)' : 'All Countries'}</option>
+      <option value="km">${this.selectedLanguage === 'km' ? 'កម្ពុជា (Cambodia)' : 'Cambodia'}</option>
+      <option value="en">${this.selectedLanguage === 'km' ? 'អាមេរិក/អង់គ្លេស (US/UK)' : 'US/UK'}</option>
+      <option value="zh">${this.selectedLanguage === 'km' ? 'ចិន (China)' : 'China'}</option>
+      <option value="ko">${this.selectedLanguage === 'km' ? 'កូរ៉េ (Korea)' : 'Korea'}</option>
+      <option value="th">${this.selectedLanguage === 'km' ? 'ថៃ (Thailand)' : 'Thailand'}</option>
+      <option value="ja">${this.selectedLanguage === 'km' ? 'ជប៉ុន (Japan)' : 'Japan'}</option>
+    `;
+  }
+
+  // Query TMDB /discover using active filters
+  async applyFilters() {
+    const grid = document.getElementById('search-results-grid');
+    grid.innerHTML = '<div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>';
+    
+    const genre = document.getElementById('filter-genre').value;
+    const country = document.getElementById('filter-country').value;
+    let sort = document.getElementById('filter-sort').value;
+    
+    const params = {};
+    
+    if (genre) {
+      params['with_genres'] = genre;
+    }
+    if (country) {
+      params['with_original_language'] = country;
+    }
+    
+    // Sort parameters differ for TV shows
+    if (this.currentView === 'tv' && sort === 'primary_release_date.desc') {
+      sort = 'first_air_date.desc';
+    }
+    params['sort_by'] = sort;
+    
+    try {
+      const data = await this.fetchFromTMDB(`/discover/${this.currentView}`, params);
+      this.renderShelf('search-results-grid', data.results || [], this.currentView);
+    } catch(e) {
+      console.error('Discover error:', e);
+      grid.innerHTML = `<div style="color: red; padding: 20px 0; text-align: center;">Failed to load results.</div>`;
+    }
   }
 
   // Navigation handlers
@@ -685,13 +748,22 @@ class StreamKHApp {
   showSection(sectionId) {
     const dashboard = document.getElementById('dashboard-view');
     const searchSection = document.getElementById('search-results-section');
+    const filterBar = document.getElementById('filter-bar');
     
     if (sectionId === 'dashboard-view') {
       dashboard.style.display = 'block';
       searchSection.style.display = 'none';
+      filterBar.style.display = 'none';
     } else {
       dashboard.style.display = 'none';
       searchSection.style.display = 'block';
+      
+      // Show filter bar only on movies or tv browse views
+      if (this.currentView === 'movie' || this.currentView === 'tv') {
+        filterBar.style.display = 'flex';
+      } else {
+        filterBar.style.display = 'none';
+      }
     }
   }
 

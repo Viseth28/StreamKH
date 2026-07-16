@@ -51,10 +51,29 @@
     <main id="main-content">
       <!-- Search Results Grid (Hidden by default) -->
       <section id="search-results-section" class="search-results-section" style="display: none;">
-        <h2 class="search-results-title">
-          <span data-translate="search_results_for">លទ្ធផលស្វែងរកសម្រាប់:</span> 
-          <span id="search-query-highlight" style="color: var(--accent-color);"></span>
-        </h2>
+        <div class="search-results-header-container">
+          <h2 class="search-results-title">
+            <span data-translate="search_results_for">លទ្ធផលស្វែងរកសម្រាប់:</span> 
+            <span id="search-query-highlight" style="color: var(--accent-color);"></span>
+          </h2>
+          
+          <!-- Browse Filters Bar -->
+          <div class="filter-bar" id="filter-bar" style="display: none;">
+            <select id="filter-genre" class="filter-select" onchange="app.applyFilters()">
+              <!-- Populated dynamically -->
+            </select>
+            
+            <select id="filter-country" class="filter-select" onchange="app.applyFilters()">
+              <!-- Populated dynamically -->
+            </select>
+            
+            <select id="filter-sort" class="filter-select" onchange="app.applyFilters()">
+              <option value="popularity.desc" data-translate="sort_popular">ពេញនិយមបំផុត (Popular)</option>
+              <option value="primary_release_date.desc" data-translate="sort_latest">ថ្មីៗបំផុត (Latest)</option>
+              <option value="vote_average.desc" data-translate="sort_top_rated">ពិន្ទុខ្ពស់បំផុត (Top Rated)</option>
+            </select>
+          </div>
+        </div>
         <div class="shelf-grid" id="search-results-grid">
           <!-- Populated by JavaScript -->
         </div>
