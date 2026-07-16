@@ -289,16 +289,20 @@ class StreamKHApp {
       const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
       
       card.innerHTML = `
-        <img class="movie-card-img" src="${posterPath}" alt="${title}" loading="lazy">
-        <div class="movie-card-overlay">
-          <div class="movie-card-title">${title}</div>
-          <div class="movie-card-info">
+        <div class="movie-card-poster">
+          <img class="movie-card-img" src="${posterPath}" alt="${title}" loading="lazy">
+          <div class="movie-card-overlay">
+            <i data-lucide="play" style="fill: var(--accent-color); stroke: var(--accent-color); width: 28px; height: 28px;"></i>
+          </div>
+        </div>
+        <div class="movie-card-info-bottom">
+          <div class="movie-card-title-bottom" title="${title}">${title}</div>
+          <div class="movie-card-meta-bottom">
             <span class="movie-card-rating">
               <i data-lucide="star" style="fill: var(--accent-color); width:12px; height:12px; stroke:none;"></i>
               <span>${rating}</span>
             </span>
-            <span>${year}</span>
-            <span class="movie-card-type">${mediaType}</span>
+            <span>${year} • <span class="movie-card-type-label">${mediaType}</span></span>
           </div>
         </div>
       `;
