@@ -230,6 +230,11 @@
         </div>
         
         <div class="player-servers">
+          <button class="btn btn-secondary btn-auto-switch" onclick="app.autoSwitchServer()" title="ប្តូរម៉ាស៊ីនមេស្វ័យប្រវត្ត / Auto-Switch Server" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+            <i data-lucide="refresh-cw" style="width:12px; height:12px;"></i>
+            <span data-translate="btn_auto_switch">ប្តូរម៉ាស៊ីនមេ</span>
+          </button>
+          
           <span class="server-label" data-translate="label_server">ម៉ាស៊ីនមេ (Server):</span>
           <select id="player-server-select" class="server-select" onchange="app.changePlayerServer(this.value)">
             <!-- Populated dynamically from CONFIG.PROVIDERS -->

@@ -28,7 +28,8 @@ const TRANSLATIONS = {
     bookmark_add: 'កក់ទុក',
     bookmark_remove: 'បានកក់ទុក',
     no_bookmarks: 'មិនទាន់មានការកក់ទុកភាពយន្តនៅឡើយទេ។',
-    no_results: 'រកមិនឃើញលទ្ធផលដែលត្រូវគ្នានឹងការស្វែងរករបស់អ្នកទេ។'
+    no_results: 'រកមិនឃើញលទ្ធផលដែលត្រូវគ្នានឹងការស្វែងរករបស់អ្នកទេ។',
+    btn_auto_switch: 'ប្តូរម៉ាស៊ីនមេ'
   },
   en: {
     nav_home: 'Home',
@@ -57,7 +58,8 @@ const TRANSLATIONS = {
     bookmark_add: 'Bookmark',
     bookmark_remove: 'Bookmarked',
     no_bookmarks: 'No movies bookmarked yet.',
-    no_results: 'No results found matching your query.'
+    no_results: 'No results found matching your query.',
+    btn_auto_switch: 'Auto-Switch'
   }
 };
 
@@ -562,6 +564,63 @@ class StreamKHApp {
   changePlayerServer(index) {
     this.selectedServerIndex = parseInt(index);
     this.loadIframeStream();
+  }
+
+  // Cycle to the next streaming server in PROVIDERS and display a toast alert
+  autoSwitchServer() {
+    this.selectedServerIndex = (this.selectedServerIndex + 1) % CONFIG.PROVIDERS.length;
+    
+    // Sync header dropdown
+    const select = document.getElementById('player-server-select');
+    if (select) select.value = this.selectedServerIndex;
+    
+    // Save as preferred default server
+    localStorage.setItem('streamkh_default_server', this.selectedServerIndex);
+    
+    // Reload player stream
+    this.loadIframeStream();
+    
+    // Display floating toast notification
+    const nextServerName = CONFIG.PROVIDERS[this.selectedServerIndex].name;
+    const msg = this.selectedLanguage === 'km'
+      ? `កំពុងប្តូរទៅម៉ាស៊ីនមេ៖ ${nextServerName}`
+      : `Switching to server: ${nextServerName}`;
+    this.showPlayerToast(msg);
+  }
+
+  // Display a floating toast banner inside the theater overlay container
+  showPlayerToast(message) {
+    let toast = document.getElementById('player-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'player-toast';
+      toast.style.cssText = `
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(18, 18, 20, 0.9);
+        color: var(--accent-color);
+        padding: 10px 22px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1px solid var(--accent-color);
+        z-index: 10;
+        pointer-events: none;
+        box-shadow: var(--shadow-premium);
+        transition: opacity 0.3s ease;
+        opacity: 0;
+      `;
+      document.querySelector('.player-container').appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    
+    clearTimeout(this.toastTimeout);
+    this.toastTimeout = setTimeout(() => {
+      toast.style.opacity = '0';
+    }, 3000);
   }
 
   // Search movies/shows

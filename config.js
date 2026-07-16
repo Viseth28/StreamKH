@@ -19,14 +19,29 @@ const CONFIG = {
       tvUrl: 'https://vidsrc.to/embed/tv/{id}/{season}/{episode}'
     },
     {
+      name: 'Embed.su',
+      movieUrl: 'https://embed.su/embed/movie/{id}',
+      tvUrl: 'https://embed.su/embed/tv/{id}/{season}/{episode}'
+    },
+    {
       name: 'VidSrc.xyz',
       movieUrl: 'https://vidsrc.xyz/embed/movie/{id}',
       tvUrl: 'https://vidsrc.xyz/embed/tv/{id}/{season}/{episode}'
     },
     {
+      name: 'SmashyStream',
+      movieUrl: 'https://embed.smashystream.com/playere.php?tmdb={id}',
+      tvUrl: 'https://embed.smashystream.com/playere.php?tmdb={id}&season={season}&episode={episode}'
+    },
+    {
       name: 'SuperEmbed',
       movieUrl: 'https://multiembed.to/director.php?video_id={id}',
       tvUrl: 'https://multiembed.to/director.php?video_id={id}&s={season}&e={episode}'
+    },
+    {
+      name: '2Embed',
+      movieUrl: 'https://www.2embed.cc/embed/{id}',
+      tvUrl: 'https://www.2embed.cc/embedtv/{id}&s={season}&e={episode}'
     }
   ],
   DEFAULT_PROVIDER_INDEX: 0,
