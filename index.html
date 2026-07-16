@@ -304,6 +304,26 @@
         </div>
       </div>
     </div>
+
+    <!-- Bottom Navigation Bar for Mobile/Tablet -->
+    <nav class="bottom-nav" id="bottom-nav">
+      <div class="bottom-nav-item active" id="mobile-nav-home" onclick="app.showHomeView()">
+        <i data-lucide="home"></i>
+        <span data-translate="nav_home">ទំព័រដើម</span>
+      </div>
+      <div class="bottom-nav-item" id="mobile-nav-movies" onclick="app.filterMediaType('movie')">
+        <i data-lucide="film"></i>
+        <span data-translate="nav_movies">ភាពយន្ត</span>
+      </div>
+      <div class="bottom-nav-item" id="mobile-nav-tv" onclick="app.filterMediaType('tv')">
+        <i data-lucide="tv"></i>
+        <span data-translate="nav_tv">រឿងភាគ</span>
+      </div>
+      <div class="bottom-nav-item" id="mobile-nav-bookmarks" onclick="app.showBookmarks()">
+        <i data-lucide="bookmark"></i>
+        <span data-translate="nav_bookmarks">បញ្ជីកក់ទុក</span>
+      </div>
+    </nav>
   </div>
 
   <!-- Load Scripts -->

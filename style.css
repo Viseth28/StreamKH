@@ -1073,8 +1073,65 @@ main {
   outline: none;
 }
 
+/* Bottom Navigation Bar (Mobile / Tablet) */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: rgba(18, 18, 20, 0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border-color);
+  display: none; /* Hidden on desktop */
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
+  padding: 0 10px;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  gap: 4px;
+  flex: 1;
+}
+
+.bottom-nav-item i {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.2;
+}
+
+.bottom-nav-item:hover, .bottom-nav-item.active {
+  color: var(--accent-color);
+}
+
+/* Tablet Layout Tweaks */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .shelf-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+  }
+}
+
 /* Mobile responsive fixes */
 @media (max-width: 768px) {
+  body {
+    padding-bottom: 70px; /* Leave space for bottom nav */
+  }
+
+  .bottom-nav {
+    display: flex;
+  }
+
   .search-results-header-container {
     flex-direction: column;
     align-items: stretch;
@@ -1092,7 +1149,7 @@ main {
   }
   
   .nav-links {
-    display: none; /* simple version, can toggle or show a bottom nav */
+    display: none; /* Hide header nav links, use bottom nav instead */
   }
   
   .search-container {
@@ -1119,6 +1176,7 @@ main {
   .details-drawer {
     width: 100%;
     right: -100%;
+    padding-bottom: 80px; /* Allow scrolling all content without bottom nav covering buttons */
   }
   
   .cast-grid {
@@ -1128,5 +1186,44 @@ main {
   .shelf-grid {
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 12px;
+  }
+}
+
+/* Narrow mobile screens (e.g. phones under 576px) */
+@media (max-width: 576px) {
+  .player-header {
+    flex-direction: column;
+    height: auto;
+    padding: 12px;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .player-title-info {
+    justify-content: flex-start;
+  }
+  
+  .player-servers {
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 0;
+  }
+  
+  .modal-content {
+    width: 92% !important;
+    margin: 10px;
+    padding: 20px;
+  }
+
+  .details-drawer-header {
+    height: 180px;
+  }
+  
+  .details-title {
+    font-size: 20px;
+  }
+  
+  .details-action-bar {
+    flex-direction: column;
   }
 }

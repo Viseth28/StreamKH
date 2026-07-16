@@ -1047,11 +1047,25 @@ class StreamKHApp {
   }
 
   setActiveNavLink(id) {
+    // Desktop navigation links highlight
     document.querySelectorAll('.nav-link').forEach(link => {
       link.classList.remove('active');
     });
     const active = document.getElementById(id);
     if (active) active.classList.add('active');
+
+    // Mobile bottom navigation bar highlight
+    document.querySelectorAll('.bottom-nav-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    const mobileIdMap = {
+      'nav-home': 'mobile-nav-home',
+      'nav-movies': 'mobile-nav-movies',
+      'nav-tv': 'mobile-nav-tv',
+      'nav-bookmarks': 'mobile-nav-bookmarks'
+    };
+    const mobileActive = document.getElementById(mobileIdMap[id]);
+    if (mobileActive) mobileActive.classList.add('active');
   }
 
   // Skeletons Loader grids
