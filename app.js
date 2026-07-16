@@ -621,7 +621,7 @@ class StreamKHApp {
     CONFIG.PROVIDERS.forEach((prov, idx) => {
       const option = document.createElement('option');
       option.value = idx;
-      option.textContent = prov.name;
+      option.textContent = this.selectedLanguage === 'km' ? `ម៉ាស៊ីនមេ ${idx + 1}` : `Server ${idx + 1}`;
       if (idx === this.selectedServerIndex) {
         option.selected = true;
       }
@@ -649,10 +649,10 @@ class StreamKHApp {
     this.loadIframeStream();
     
     // Display floating toast notification
-    const nextServerName = CONFIG.PROVIDERS[this.selectedServerIndex].name;
+    const nextServerNum = this.selectedServerIndex + 1;
     const msg = this.selectedLanguage === 'km'
-      ? `កំពុងប្តូរទៅម៉ាស៊ីនមេ៖ ${nextServerName}`
-      : `Switching to server: ${nextServerName}`;
+      ? `កំពុងប្តូរទៅម៉ាស៊ីនមេទី ${nextServerNum}`
+      : `Switching to Server ${nextServerNum}`;
     this.showPlayerToast(msg);
   }
 
@@ -1145,7 +1145,7 @@ class StreamKHApp {
     CONFIG.PROVIDERS.forEach((p, index) => {
       const opt = document.createElement('option');
       opt.value = index;
-      opt.textContent = p.name;
+      opt.textContent = this.selectedLanguage === 'km' ? `ម៉ាស៊ីនមេ ${index + 1}` : `Server ${index + 1}`;
       if (index === this.selectedServerIndex) {
         opt.selected = true;
       }
