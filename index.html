@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="StreamKH - វេបសាយទស្សនាភាពយន្តដោយសេរី និងឥតគិតថ្លៃសម្រាប់ប្រជាជនខ្មែរ">
+  <title>StreamKH - ទស្សនាភាពយន្តខ្មែរ និងបរទេសដោយឥតគិតថ្លៃ</title>
+  
+  <link rel="stylesheet" href="style.css">
+  <!-- Lucide Icons via ESM/CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="lang-km">
+
+  <div class="app-container">
+    <!-- Header / Navigation -->
+    <header id="app-header">
+      <div class="logo-container" onclick="app.showHomeView()">
+        <span class="logo-text">StreamKH</span>
+        <span class="logo-badge">FREE</span>
+      </div>
+      
+      <div class="nav-links">
+        <span class="nav-link active" id="nav-home" onclick="app.showHomeView()" data-translate="nav_home">ទំព័រដើម</span>
+        <span class="nav-link" id="nav-movies" onclick="app.filterMediaType('movie')" data-translate="nav_movies">ភាពយន្ត</span>
+        <span class="nav-link" id="nav-tv" onclick="app.filterMediaType('tv')" data-translate="nav_tv">រឿងភាគ</span>
+        <span class="nav-link" id="nav-bookmarks" onclick="app.showBookmarks()" data-translate="nav_bookmarks">បញ្ជីកក់ទុក</span>
+      </div>
+      
+      <div class="header-actions">
+        <!-- Search bar -->
+        <div class="search-container">
+          <i data-lucide="search" class="search-icon"></i>
+          <input type="text" id="search-input" class="search-input" placeholder="ស្វែងរកភាពយន្ត..." data-translate-placeholder="search_placeholder">
+        </div>
+        
+        <!-- Language Switcher -->
+        <div class="lang-switch">
+          <button class="lang-btn active" id="lang-km-btn" onclick="app.toggleLanguage('km')">ខ្មែរ</button>
+          <button class="lang-btn" id="lang-en-btn" onclick="app.toggleLanguage('en')">EN</button>
+        </div>
+        
+        <!-- Settings button -->
+        <button class="settings-btn" id="open-settings-btn" onclick="app.openSettings()" title="ការកំណត់ / Settings">
+          <i data-lucide="settings"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main View Section -->
+    <main id="main-content">
+      <!-- Search Results Grid (Hidden by default) -->
+      <section id="search-results-section" class="search-results-section" style="display: none;">
+        <h2 class="search-results-title">
+          <span data-translate="search_results_for">លទ្ធផលស្វែងរកសម្រាប់:</span> 
+          <span id="search-query-highlight" style="color: var(--accent-color);"></span>
+        </h2>
+        <div class="shelf-grid" id="search-results-grid">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- Dashboard Sections (Visible by default) -->
+      <div id="dashboard-view">
+        <!-- Hero Movie Banner -->
+        <section class="hero-section" id="hero-banner">
+          <div class="hero-backdrop" id="hero-backdrop-img"></div>
+          <div class="hero-content">
+            <div class="hero-tagline" id="hero-tagline-text" data-translate="featured_movie">ភាពយន្តពិសេស</div>
+            <h1 class="hero-title" id="hero-title-text">លោតទៅកាន់ដំណើរផ្សងព្រេង</h1>
+            <div class="hero-meta">
+              <span class="hero-rating" id="hero-rating-val">
+                <i data-lucide="star" style="fill: var(--accent-color); width:16px; height:16px;"></i> 
+                <span>8.5</span>
+              </span>
+              <span id="hero-release-year">2026</span>
+              <span id="hero-media-type" class="movie-card-type">Movie</span>
+            </div>
+            <p class="hero-overview" id="hero-overview-text">ស្វែងយល់ពីភាពយន្តថ្មីៗ និងពេញនិយមបំផុតនាពេលបច្ចុប្បន្ន...</p>
+            <div style="display:flex; gap:16px;">
+              <button class="btn btn-primary" id="hero-play-btn">
+                <i data-lucide="play" style="fill: #000; width:16px; height:16px;"></i>
+                <span data-translate="btn_watch">ទស្សនាឥឡូវនេះ</span>
+              </button>
+              <button class="btn btn-secondary" id="hero-info-btn">
+                <i data-lucide="info" style="width:16px; height:16px;"></i>
+                <span data-translate="btn_details">ព័ត៌មានលម្អិត</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Shelves Categories -->
+        <section class="shelf-container" id="trending-movies-shelf">
+          <h2 class="shelf-title">
+            <span data-translate="shelf_trending_movies">ភាពយន្តកំពុងពេញនិយម</span>
+          </h2>
+          <div class="shelf-grid" id="trending-movies-grid">
+            <!-- Skeleton cards initially -->
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </section>
+
+        <section class="shelf-container" id="trending-shows-shelf">
+          <h2 class="shelf-title">
+            <span data-translate="shelf_trending_shows">រឿងភាគកំពុងពេញនិយម</span>
+          </h2>
+          <div class="shelf-grid" id="trending-shows-grid">
+            <!-- Skeleton cards -->
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </section>
+        
+        <section class="shelf-container" id="top-rated-shelf">
+          <h2 class="shelf-title">
+            <span data-translate="shelf_top_rated">ភាពយន្តទទួលបានការវាយតម្លៃខ្ពស់</span>
+          </h2>
+          <div class="shelf-grid" id="top-rated-grid">
+            <!-- Skeleton cards -->
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Slide-over Movie Details Panel -->
+    <div class="details-drawer-overlay" id="details-drawer-overlay" onclick="app.closeDetails()"></div>
+    <div class="details-drawer" id="details-drawer">
+      <div class="details-drawer-header">
+        <img src="" class="details-drawer-backdrop" id="details-backdrop">
+        <div class="details-drawer-gradient"></div>
+        <button class="details-drawer-close" onclick="app.closeDetails()">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      
+      <div class="details-drawer-content">
+        <div class="details-title-row">
+          <h2 class="details-title" id="details-title">ចំណងជើងភាពយន្ត</h2>
+          <div class="details-subtitle" id="details-original-title">Original Title</div>
+        </div>
+        
+        <div class="details-meta-badges">
+          <span class="badge badge-rating" id="details-rating">★ 0.0</span>
+          <span class="badge" id="details-year">2026</span>
+          <span class="badge" id="details-duration">N/A</span>
+          <button class="badge" id="details-bookmark-btn" onclick="app.toggleBookmarkCurrent()" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+            <i data-lucide="bookmark" id="details-bookmark-icon" style="width:12px; height:12px;"></i>
+            <span id="details-bookmark-txt">កក់ទុក</span>
+          </button>
+        </div>
+        
+        <div class="details-action-bar">
+          <button class="btn btn-primary" id="details-play-btn" style="width: 100%; justify-content: center;">
+            <i data-lucide="play" style="fill: #000; width:18px; height:18px;"></i>
+            <span data-translate="btn_watch">ទស្សនាឥឡូវនេះ</span>
+          </button>
+        </div>
+
+        <!-- TV Show Episode Selector Component (Rendered conditionally by JS) -->
+        <div class="episodes-module" id="details-episodes-module" style="display: none;">
+          <div class="season-selector-wrapper">
+            <label for="season-select" class="form-label" style="margin-bottom:0;" data-translate="label_season">រដូវកាល៖</label>
+            <select id="season-select" class="season-select" onchange="app.loadEpisodes(this.value)">
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
+          <div class="episodes-grid" id="episodes-grid">
+            <!-- Buttons populated dynamically -->
+          </div>
+        </div>
+        
+        <div class="details-overview-title" data-translate="label_overview">សង្ខេបរឿង</div>
+        <p class="details-overview" id="details-overview">ពណ៌នាអំពីសាច់រឿង...</p>
+        
+        <div class="details-cast-container">
+          <div class="details-cast-title" data-translate="label_cast">តួសម្តែងសំខាន់ៗ</div>
+          <div class="cast-grid" id="details-cast-grid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Watch Screen (Theater Overlay) -->
+    <div class="player-overlay" id="player-overlay">
+      <div class="player-header">
+        <div class="player-title-info">
+          <button class="player-back-btn" onclick="app.closePlayer()" title="Back to Details">
+            <i data-lucide="arrow-left"></i>
+          </button>
+          <div>
+            <div class="player-title" id="player-title-text">ចំណងជើងរឿង</div>
+            <div class="player-episode-info" id="player-episode-text" style="display:none;">រដូវកាល ១ ភាគ ១</div>
+          </div>
+        </div>
+        
+        <div class="player-servers">
+          <span class="server-label" data-translate="label_server">ម៉ាស៊ីនមេ (Server):</span>
+          <select id="player-server-select" class="server-select" onchange="app.changePlayerServer(this.value)">
+            <!-- Populated dynamically from CONFIG.PROVIDERS -->
+          </select>
+        </div>
+      </div>
+      
+      <div class="player-container">
+        <iframe 
+          id="player-iframe" 
+          class="player-iframe" 
+          src="" 
+          allowfullscreen 
+          referrerpolicy="no-referrer">
+        </iframe>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" data-translate="settings_title">ការកំណត់ / Settings</h3>
+          <i data-lucide="x" class="modal-close-btn" onclick="app.closeSettings()"></i>
+        </div>
+        
+        <div class="alert-box">
+          <strong data-translate="settings_notice">សម្គាល់៖</strong> 
+          <span data-translate="settings_notice_body">StreamKH ត្រូវការកូដ TMDB API Key ដើម្បីទាញយកទិន្នន័យភាពយន្ត។ អ្នកអាចចុះឈ្មោះយក API Key ដោយឥតគិតថ្លៃនៅលើគេហទំព័រ standard TMDB។</span>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="settings-api-key">TMDB API Read Access Token (v4 auth) ឬ API Key (v3):</label>
+          <input type="password" id="settings-api-key" class="form-input" placeholder="បិទភ្ជាប់ TMDB API Key នៅទីនេះ...">
+          <div class="form-help">
+            <span data-translate="settings_api_help">ចុះឈ្មោះគណនី និងបង្កើតកូដ API នៅ៖</span> 
+            <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">themoviedb.org</a>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="settings-default-server" data-translate="settings_label_server">ម៉ាស៊ីនមេលំនាំដើម (Default Player):</label>
+          <select id="settings-default-server" class="form-input">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+        
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="app.closeSettings()" data-translate="btn_cancel">បោះបង់</button>
+          <button class="btn btn-primary" onclick="app.saveSettings()" data-translate="btn_save">រក្សាទុក</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Scripts -->
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Initialize Lucide Icons after the page loads
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
