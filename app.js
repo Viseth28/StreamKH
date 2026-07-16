@@ -737,7 +737,6 @@ class StreamKHApp {
       <option value="en">${this.selectedLanguage === 'km' ? 'អាមេរិក/អង់គ្លេស (US/UK)' : 'US/UK'}</option>
       <option value="zh">${this.selectedLanguage === 'km' ? 'ចិន (China)' : 'China'}</option>
       <option value="ko">${this.selectedLanguage === 'km' ? 'កូរ៉េ (Korea)' : 'Korea'}</option>
-      <option value="th">${this.selectedLanguage === 'km' ? 'ថៃ (Thailand)' : 'Thailand'}</option>
       <option value="ja">${this.selectedLanguage === 'km' ? 'ជប៉ុន (Japan)' : 'Japan'}</option>
     `;
   }
